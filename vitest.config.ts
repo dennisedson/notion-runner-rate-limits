@@ -5,7 +5,11 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts"],
-      exclude: ["src/**/*.test.ts", "src/**/*.d.ts"],
+      exclude: [
+        "src/**/*.test.ts",
+        "src/**/*.d.ts",
+        "src/index.ts", // re-export barrel, no logic
+      ],
       reporter: ["text", "lcov"],
       thresholds: {
         statements: 90,

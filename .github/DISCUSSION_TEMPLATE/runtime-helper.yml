@@ -1,0 +1,31 @@
+title: "Should we ship an installable runtime helper?"
+labels: ["question", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repo is **data-first**: a curated reference of API rate limits you
+        copy into your Notion Worker's `worker.pacer(...)` call. There's an
+        optional copy-paste helper in `examples/notion-pacer.ts` for resolving a
+        pacer from a service name with env-var overrides.
+
+        We're gauging whether to turn that into a real, installable package.
+        Adding a runtime dependency only makes sense if enough people want it —
+        so tell us about your use case.
+  - type: dropdown
+    id: interest
+    attributes:
+      label: Would you use an installable helper?
+      options:
+        - "Yes — I'd add the dependency"
+        - "Maybe — depends on the API surface"
+        - "No — grabbing the numbers is enough"
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: What's your use case?
+      description: How many APIs are you pacing? Do you need env-var/config-driven overrides?
+    validations:
+      required: false

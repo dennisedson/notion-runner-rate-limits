@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Worker } from "@notionhq/workers";
-import { createDynamicPacer, resolveRateLimit } from "./index";
+import { createDynamicPacer, resolveRateLimit } from "./notion-pacer";
 
 const ENV_KEYS = [
   "PACER_GITHUB_REQUESTS",
@@ -51,9 +51,7 @@ describe("resolveRateLimit", () => {
     });
   });
 
-  it("does not clobber the other field on a partial env override (the bug fix)", () => {
-    // Only REQUESTS is set for an unknown service; INTERVAL must still fall back
-    // instead of being overwritten alongside REQUESTS.
+  it("does not clobber the other field on a partial env override", () => {
     process.env.PACER_ACME_REQUESTS = "7";
     expect(resolveRateLimit("acme", { fallbackIntervalMs: 3_000 })).toEqual({
       allowedRequests: 7,

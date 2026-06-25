@@ -5,14 +5,12 @@
     "moduleResolution": "Bundler",
     "lib": ["ES2020"],
     "types": ["node"],
-    "declaration": true,
-    "outDir": "dist",
-    "rootDir": "src",
+    "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["src", "examples", "scripts"],
+  "exclude": ["node_modules"]
 }

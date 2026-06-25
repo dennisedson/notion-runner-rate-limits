@@ -1,8 +1,7 @@
 /**
- * Minimal local shim for the parts of `@notionhq/workers` this package uses.
- *
- * It lets the repo typecheck and test in isolation. When you install the real
- * `@notionhq/workers` package in your Worker project, its own types take over.
+ * Minimal local shim for the parts of `@notionhq/workers` the example uses, so
+ * the example typechecks in this repo. In a real Notion Worker project the
+ * actual package provides these types.
  */
 declare module "@notionhq/workers" {
   export interface Pacer {

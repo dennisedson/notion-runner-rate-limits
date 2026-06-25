@@ -1,0 +1,22 @@
+{
+  "github": {
+    "allowedRequests": 83,
+    "intervalMs": 60000,
+    "sourceUrl": "https://docs.github.com/rest/using-the-rest-api/rate-limits-for-the-rest-api"
+  },
+  "shopify": {
+    "allowedRequests": 2,
+    "intervalMs": 1000,
+    "sourceUrl": "https://shopify.dev/docs/api/usage/rate-limits"
+  },
+  "slack": {
+    "allowedRequests": 50,
+    "intervalMs": 60000,
+    "sourceUrl": "https://api.slack.com/docs/rate-limits"
+  },
+  "stripe": {
+    "allowedRequests": 100,
+    "intervalMs": 1000,
+    "sourceUrl": "https://docs.stripe.com/rate-limits"
+  }
+}

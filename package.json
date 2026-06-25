@@ -1,16 +1,11 @@
 {
   "name": "notion-runner-rate-limits",
   "version": "0.1.0",
-  "description": "A registry of common API rate limits and a helper for Notion Worker pacers.",
+  "description": "A community reference of common API rate limits for Notion Workers.",
   "license": "MIT",
   "type": "module",
+  "private": true,
   "author": "Dennis Edson",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dennisedson/notion-runner-rate-limits.git"
@@ -19,18 +14,15 @@
     "url": "https://github.com/dennisedson/notion-runner-rate-limits/issues"
   },
   "homepage": "https://github.com/dennisedson/notion-runner-rate-limits#readme",
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "validate": "tsx scripts/validate-registry.ts",
+    "build:json": "tsx scripts/build-json.ts",
+    "check:json": "tsx scripts/build-json.ts --check",
     "lint": "eslint . && prettier --check .",
-    "format": "prettier --write .",
-    "prepublishOnly": "npm run build"
+    "format": "prettier --write ."
   },
   "keywords": [
     "notion",
@@ -39,9 +31,6 @@
     "pacer",
     "api"
   ],
-  "peerDependencies": {
-    "@notionhq/workers": "*"
-  },
   "devDependencies": {
     "@eslint/js": "^9.5.0",
     "@types/node": "^20.0.0",

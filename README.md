@@ -1,97 +1,88 @@
 # notion-runner-rate-limits
 
 [![CI](https://github.com/dennisedson/notion-runner-rate-limits/actions/workflows/ci.yml/badge.svg)](https://github.com/dennisedson/notion-runner-rate-limits/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/notion-runner-rate-limits.svg)](https://www.npmjs.com/package/notion-runner-rate-limits)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
-A small registry of common API rate limits, plus a helper that turns them into
-[Notion Worker](https://developers.notion.com/workers/get-started/overview)
-pacers. Point it at a service name and it resolves a sensible
-`allowedRequests` / `intervalMs` pair for you — with env-var and per-call
-overrides when you need something more precise.
+A community-maintained reference of common API rate limits, for people building
+[Notion Workers](https://developers.notion.com/workers/get-started/overview).
 
-## Install
+Notion Workers already give you a built-in pacer to throttle outbound calls —
+you just need the right numbers. That's what this repo is: a curated, sourced
+list of those numbers so you don't have to dig through each API's docs. **Grab a
+value and drop it into your `worker.pacer(...)` call. No install required.**
 
-```bash
-npm install notion-runner-rate-limits
-```
+## The limits
 
-`@notionhq/workers` is a peer dependency — your Notion Worker project already
-provides it.
+Every value links to the official docs it came from. These are **conservative
+defaults** — see the [caveats](#caveats) below.
 
-## Usage
+| Service | Allowed requests | Interval            | Source                                                                               |
+| ------- | ---------------- | ------------------- | ------------------------------------------------------------------------------------ |
+| GitHub  | 83               | 60,000 ms (per min) | [docs](https://docs.github.com/rest/using-the-rest-api/rate-limits-for-the-rest-api) |
+| Shopify | 2                | 1,000 ms (per sec)  | [docs](https://shopify.dev/docs/api/usage/rate-limits)                               |
+| Slack   | 50               | 60,000 ms (per min) | [docs](https://api.slack.com/docs/rate-limits)                                       |
+| Stripe  | 100              | 1,000 ms (per sec)  | [docs](https://docs.stripe.com/rate-limits)                                          |
+
+Machine-readable version: [`registry.json`](./registry.json) (generated from
+[`src/registry.ts`](./src/registry.ts)).
+
+## Using a limit
+
+Inside a Notion Worker sync, pass the numbers straight to the built-in pacer and
+`await pacer.wait()` before each request:
 
 ```typescript
-import { createDynamicPacer } from "notion-runner-rate-limits";
+// Shopify: 2 requests / second
+const shopify = worker.pacer("shopify", {
+  allowedRequests: 2,
+  intervalMs: 1000,
+});
 
-// Inside your Worker sync:
-const shopifyPacer = createDynamicPacer(worker, "shopify");
-
-// Creating the pacer does NOT throttle on its own.
-// Call wait() before each outbound request to enforce the limit:
 for (const item of items) {
-  await shopifyPacer.wait();
+  await shopify.wait();
   await fetch("https://your-store.myshopify.com/admin/api/...");
 }
 ```
 
-### Overrides
+## Reading the data programmatically
 
-Resolution precedence is applied **per field**, so a partial override never
-clobbers the other value:
+`registry.json` is plain JSON you can fetch raw or read from any language — no
+package to install, always the latest committed values:
 
-1. Environment variables — `PACER_<SERVICE>_REQUESTS` and `PACER_<SERVICE>_INTERVAL`
-2. The registry entry for the service
-3. Caller-supplied fallback (defaults to 1 request / 1000 ms)
-
-```bash
-# e.g. override just the request count for Shopify
-export PACER_SHOPIFY_REQUESTS=4
+```
+https://raw.githubusercontent.com/dennisedson/notion-runner-rate-limits/main/registry.json
 ```
 
-```typescript
-// Fallbacks for a service that isn't in the registry yet:
-const pacer = createDynamicPacer(worker, "acme", {
-  fallbackRequests: 5,
-  fallbackIntervalMs: 1000,
-  envPrefix: "PACER", // optional, this is the default
-});
-```
+## Optional: dynamic helper
 
-You can also resolve the config without creating a pacer:
+If you'd rather resolve a pacer from a service name (with env-var overrides)
+instead of inlining numbers, there's a copy-paste helper at
+[`examples/notion-pacer.ts`](./examples/notion-pacer.ts). It's intentionally
+_not_ a published dependency — for most projects, reading the number is simpler.
 
-```typescript
-import { resolveRateLimit } from "notion-runner-rate-limits";
+## Open question
 
-const { allowedRequests, intervalMs } = resolveRateLimit("github");
-```
+Is a real, installable helper for **pacing many APIs from config** (env-var
+overrides, dynamic lookup) something you'd actually use, or is grabbing the
+numbers enough? We're gauging demand before adding a runtime dependency.
+
+👉 **Weigh in here:** [Discussion: should we ship a runtime helper?](https://github.com/dennisedson/notion-runner-rate-limits/discussions)
+
+## Caveats
+
+These are conservative starting points, not exhaustive models. Many APIs vary
+limits by plan tier or endpoint, or use cost-based models a single
+requests/interval pair can't fully capture (e.g. GitHub enforces hourly, Slack
+limits are per-method tiers, Shopify Plus is 4/s and its GraphQL API is
+cost-based). When in doubt, start cautious and confirm against the linked docs.
 
 ## Contributing
 
-Community contributions are very welcome — especially new and corrected rate
-limits. The short version:
-
-1. Open `src/registry.ts` and add your service in **lowercase**, alphabetically:
-
-   ```typescript
-   hubspot: {
-     allowedRequests: 10,
-     intervalMs: 1000,
-     sourceUrl: "https://developers.hubspot.com/docs/api/usage-details",
-   },
-   ```
-
-2. Base the numbers on the **official docs** and link them in `sourceUrl`.
-3. Run `npm run typecheck` and `npm test`, then open a PR.
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide and
+The most valuable contributions are **new and corrected rate limits**. Add an
+entry to [`src/registry.ts`](./src/registry.ts), run `npm run build:json`, and
+open a PR. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide and
 [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) for community expectations.
-
-> Note: these values are **conservative defaults**, not exhaustive models. Many
-> APIs vary limits by plan tier or endpoint, or use cost-based models a single
-> requests/interval pair can't fully capture. When in doubt, start cautious and
-> override per call.
 
 ## License
 
