@@ -19,6 +19,6 @@ body:
     id: use-case
     attributes:
       label: Your use case
-      description: How many APIs are you pacing? Would config-driven / env-var overrides matter to you?
+      description: What are you building, and how would this idea help? Concrete details make it easier to prioritize.
     validations:
       required: false
