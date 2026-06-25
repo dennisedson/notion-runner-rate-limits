@@ -9,6 +9,7 @@ export default defineConfig({
         "src/**/*.test.ts",
         "src/**/*.d.ts",
         "src/index.ts", // re-export barrel, no logic
+        "src/types.ts", // type declarations, no runtime
       ],
       reporter: ["text", "lcov"],
       thresholds: {

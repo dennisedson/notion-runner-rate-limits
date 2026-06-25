@@ -25,7 +25,7 @@ const sorted = Object.fromEntries(
 const json = JSON.stringify(sorted, null, 2) + "\n";
 
 if (process.argv.includes("--check")) {
-  let current = "";
+  let current: string;
   try {
     current = readFileSync(outPath, "utf8");
   } catch {
